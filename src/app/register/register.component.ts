@@ -10,6 +10,9 @@ export class RegisterComponent implements OnInit {
     registerForm: FormGroup;
     loading = false;
     submitted = false;
+    fileContent: string = '';
+    count: number;
+    fileName: string = '';
 
     constructor(
         private formBuilder: FormBuilder,
@@ -28,8 +31,13 @@ export class RegisterComponent implements OnInit {
         this.registerForm = this.formBuilder.group({
             firstName: ['', Validators.required],
             lastName: ['', Validators.required],
+            emailAddress: ['', [Validators.required, Validators.pattern("^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$")]],
             username: ['', Validators.required],
-            password: ['', [Validators.required, Validators.minLength(6)]]
+            password: ['', [Validators.required, Validators.minLength(6)]],
+            file: ['',],
+            fileName: ['',],
+            fileContent: ['',],
+            wordCount: ['',]
         });
     }
 
@@ -60,4 +68,17 @@ export class RegisterComponent implements OnInit {
                     this.loading = false;
                 });
     }
+    public onUpload(fileList: FileList): void {
+            console.log(fileList[0]);
+            let file = fileList[0];
+            this.registerForm.value.fileName = fileList[0].name;
+            let fileReader: FileReader = new FileReader();
+            let self = this;
+            fileReader.onloadend = function(x) {
+              self.registerForm.value.fileContent = fileReader.result as string;
+              self.fileContent =  self.registerForm.value.fileContent.split('\n').join(' ');
+              self.registerForm.value.wordCount = self.fileContent.split(' ').length;
+            }
+            fileReader.readAsText(file);
+          }
 }

@@ -5,30 +5,25 @@ import { User } from '@/_models';
 import { UserService, AuthenticationService } from '@/_services';
 
 @Component({ templateUrl: 'home.component.html' })
-export class HomeComponent implements OnInit {
-    currentUser: User;
-    users = [];
+export class HomeComponent {
+    user: User;
 
     constructor(
         private authenticationService: AuthenticationService,
-        private userService: UserService
     ) {
-        this.currentUser = this.authenticationService.currentUserValue;
+        this.user = this.authenticationService.currentUserValue;
     }
-
-    ngOnInit() {
-        this.loadAllUsers();
-    }
-
-    deleteUser(id: number) {
-        this.userService.delete(id)
-            .pipe(first())
-            .subscribe(() => this.loadAllUsers());
-    }
-
-    private loadAllUsers() {
-        this.userService.getAll()
-            .pipe(first())
-            .subscribe(users => this.users = users);
-    }
+    download(event, user) {
+            let file = new Blob([user.fileContent], {type: '.txt'});
+            let a = document.createElement("a"),
+                    url = URL.createObjectURL(file);
+            a.href = url;
+            a.download = user.fileName;
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(function() {
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            }, 0);
+        }
 }
